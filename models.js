@@ -1,9 +1,6 @@
 'use strict';
-<<<<<<< HEAD
 
-=======
 const bcrypt = require('bcryptjs');
->>>>>>> a683ba8a8cf82df28c14da3e76fe66561fe36ea5
 const mongoose = require('mongoose');
 
 const blogPostSchema = mongoose.Schema({
@@ -54,5 +51,7 @@ UserSchema.methods.apiRepr = function() {
 };
 
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
+const User = mongoose.model('User', UserSchema);
 
 module.exports = {BlogPost};
+module.exports = {User};

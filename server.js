@@ -9,6 +9,7 @@ const morgan = require('morgan');
 
 const {DATABASE_URL, PORT} = require('./config');
 const {BlogPost} = require('./models');
+const {User} = require('./models');
 
 const app = express();
 
@@ -45,7 +46,7 @@ app.post('/posts', (req, res) => {
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`
+      const message = `Missing \`${field}\` in request body`;
       console.error(message);
       return res.status(400).send(message);
     }
@@ -145,6 +146,32 @@ app.post('/users', (req, res) => {
   if (password === '') {
     return res.status(422).json({message: 'password is empty string.'});
   }
+
+  return User
+    .find({username})
+    .count()
+    .then(count => {
+      if (count > 0) {
+        return res.status(422).json({message: 'Username already taken'});
+      }
+
+      return User.hashPassword(password);
+    })
+    .then(hash => {
+      return User
+        .create({
+          username,
+          password: hash,
+          firstName,
+          lastName
+        })
+        .then(user => {
+          return res.status(201).json(user.apiRepr());
+        })
+        .catch(err => {
+          res.status(500).json({message: 'I know this doesn\'t help you, but Internal Server Error.'});
+        });
+    });
 });
 
 
