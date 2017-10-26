@@ -1,3 +1,5 @@
+'use strict';
+
 const mongoose = require('mongoose');
 
 const blogPostSchema = mongoose.Schema({
@@ -9,7 +11,6 @@ const blogPostSchema = mongoose.Schema({
   content: {type: String},
   created: {type: Date, default: Date.now}
 });
-
 
 blogPostSchema.virtual('authorName').get(function() {
   return `${this.author.firstName} ${this.author.lastName}`.trim();
@@ -23,7 +24,14 @@ blogPostSchema.methods.apiRepr = function() {
     title: this.title,
     created: this.created
   };
-}
+};
+
+const userSchema = mongoose.Schema({
+  username: {type: String, required: true, unique: true},
+  password: {type: String, required: true, minlength: 6},
+  firstName: {type: String, default: ''},
+  lastName: {type: String, default: ''}
+});
 
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
 
