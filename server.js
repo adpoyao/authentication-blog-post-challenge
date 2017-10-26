@@ -1,5 +1,6 @@
 'use strict';
-
+const passport = require('passport');
+const {BasicStrategy} = require('passport-http');
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
