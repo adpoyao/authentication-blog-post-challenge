@@ -1,5 +1,7 @@
 'use strict';
 
+const passport = require('passport');
+const {BasicStrategy} = require('passport-http');
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
@@ -57,8 +59,8 @@ app.post('/posts', (req, res) => {
     })
     .then(blogPost => res.status(201).json(blogPost.apiRepr()))
     .catch(err => {
-        console.error(err);
-        res.status(500).json({error: 'Something went wrong'});
+      console.error(err);
+      res.status(500).json({error: 'Something went wrong'});
     });
 
 });
@@ -100,12 +102,49 @@ app.put('/posts/:id', (req, res) => {
 
 
 app.delete('/:id', (req, res) => {
-  BlogPosts
+  BlogPost
     .findByIdAndRemove(req.params.id)
     .then(() => {
       console.log(`Deleted blog post with id \`${req.params.ID}\``);
       res.status(204).end();
     });
+});
+
+//START HERE!!//
+app.post('/users', (req, res) => {
+  if (!req.body) {
+    return res.status(422).json({message: 'No request body'});
+  }
+
+  if (!('username' in req.body)) {
+    return res.status(422).json({message: 'Missing field username'});
+  }
+
+  if (!('password' in req.body)) {
+    return res.status(422).json({message: 'Missing field password'});
+  }
+
+  let {username, password, firstName, lastName} = req.body;
+
+  if (typeof username !== 'string') {
+    return res.status(422).json({message: 'Incorrect username type.'});
+  }
+
+  username = username.trim();
+
+  if (username === '') {
+    return res.status(422).json({message: 'Username is empty string.'});
+  }
+
+  if (typeof password !== 'string') {
+    return res.status(422).json({message: 'Incorrect password type.'});
+  }
+
+  password = password.trim();
+
+  if (password === '') {
+    return res.status(422).json({message: 'password is empty string.'});
+  }
 });
 
 
@@ -129,10 +168,10 @@ function runServer(databaseUrl=DATABASE_URL, port=PORT) {
         console.log(`Your app is listening on port ${port}`);
         resolve();
       })
-      .on('error', err => {
-        mongoose.disconnect();
-        reject(err);
-      });
+        .on('error', err => {
+          mongoose.disconnect();
+          reject(err);
+        });
     });
   });
 }
@@ -141,15 +180,15 @@ function runServer(databaseUrl=DATABASE_URL, port=PORT) {
 // use it in our integration tests later.
 function closeServer() {
   return mongoose.disconnect().then(() => {
-     return new Promise((resolve, reject) => {
-       console.log('Closing server');
-       server.close(err => {
-           if (err) {
-               return reject(err);
-           }
-           resolve();
-       });
-     });
+    return new Promise((resolve, reject) => {
+      console.log('Closing server');
+      server.close(err => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
+    });
   });
 }
 
@@ -157,6 +196,6 @@ function closeServer() {
 // runs. but we also export the runServer command so other code (for instance, test code) can start the server as needed.
 if (require.main === module) {
   runServer().catch(err => console.error(err));
-};
+}
 
 module.exports = {runServer, app, closeServer};
