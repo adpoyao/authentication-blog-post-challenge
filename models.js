@@ -41,6 +41,14 @@ UserSchema.statics.hashPassword = function(password) {
   return bcrypt.hash(password, 10);
 };
 
+UserSchema.methods.apiRepr = function() {
+  return {
+    username: this.username,
+    firstName: this.firstName || '',
+    lastName: this.lastName || ''
+  };
+};
+
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
 
 module.exports = {BlogPost};
